@@ -21,7 +21,7 @@ public class TopicAnalysisService {
         for (Article article : articles) {
             if (YearMonth.from(article.getDate()).equals(period)) {
                 countWords(article.getTitle(), freq);
-                countWords(article.getBody(), freq);
+                countWords(article.getContent(), freq);
             }
         }
 
@@ -64,7 +64,7 @@ public class TopicAnalysisService {
             if (ym.isBefore(start) || ym.isAfter(end)) continue;
 
             int count = countOccurrences(article.getTitle(), normalizedTopic)
-                    + countOccurrences(article.getBody(), normalizedTopic);
+                    + countOccurrences(article.getContent(), normalizedTopic);
 
             trend.put(ym, trend.get(ym) + count);
         }
