@@ -9,31 +9,63 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Command-line user interface for the Tech News Search Engine.
+ *
+ * This class is responsible for:
+ * - displaying startup messages and menus
+ * - reading user input
+ * - validating menu selections and command input
+ * - delegating all actual operations to the processor layer
+ *
+ * It does not contain data loading or business logic, which helps preserve
+ * separation of concerns in the application's n-tier architecture.
+ */
 public class CommandLineUI {
+    /** Processor facade used by the UI layer */
     private final SearchEngineProcessor processor;
+
+    /** Scanner for reading console input */
     private final Scanner scanner;
+
+    /** Path of the data file shown during startup */
     private final String dataFilePath;
 
+    /**
+     * Constructs the command-line UI.
+     *
+     * @param processor processor facade used for all user-facing operations
+     * @param dataFilePath path of the article data file
+     */
     public CommandLineUI(SearchEngineProcessor processor, String dataFilePath) {
         this.processor = processor;
         this.dataFilePath = dataFilePath;
         this.scanner = new Scanner(System.in);
     }
 
+    /**
+     * Starts the UI by printing startup messages and launching the main menu loop.
+     */
     public void start() {
         printStartupMessages();
         mainMenuLoop();
     }
 
+    /**
+     * Prints application startup messages required by the UI specification.
+     */
     private void printStartupMessages() {
         System.out.println("=== Tech News Search Engine ===");
         System.out.println("Initializing n-tier architecture...");
         System.out.println("Loading articles from: " + dataFilePath);
-        // 这里最好从processor拿 count，更稳
         System.out.println("Articles loaded successfully.");
         System.out.println("Architecture initialization complete!");
     }
 
+    /**
+     * Main menu loop for navigating between interactive mode,
+     * command mode, help, and exit.
+     */
     private void mainMenuLoop() {
         while (true) {
             MenuPrinter.printMainMenu();
@@ -63,6 +95,9 @@ public class CommandLineUI {
         }
     }
 
+    /**
+     * Interactive mode loop that guides the user through available services.
+     */
     private void interactiveMode() {
         while (true) {
             MenuPrinter.printInteractiveMenu();
@@ -81,7 +116,9 @@ public class CommandLineUI {
                 case "5" -> doInteractiveArticles();
                 case "6" -> doInteractiveArticle();
                 case "7" -> doInteractiveStats();
-                case "8" -> { return; }
+                case "8" -> {
+                    return;
+                }
                 default -> {
                     if (isNumeric(input)) {
                         System.out.println("Invalid choice. Please enter 1-8:");
@@ -93,6 +130,9 @@ public class CommandLineUI {
         }
     }
 
+    /**
+     * Command mode loop for direct command entry.
+     */
     private void commandMode() {
         MenuPrinter.printCommandModeHeader();
 
@@ -118,6 +158,11 @@ public class CommandLineUI {
         }
     }
 
+    /**
+     * Parses and executes a command entered in command mode.
+     *
+     * @param line raw command line input
+     */
     private void handleCommand(String line) {
         String[] parts = line.split("\\s+");
         String cmd = parts[0].toLowerCase();
@@ -151,6 +196,7 @@ public class CommandLineUI {
                         System.out.println("Usage: trends <topic> <start> <end>");
                         return;
                     }
+
                     String topic = parts[1];
                     YearMonth start = YearMonth.parse(parts[2]);
                     YearMonth end = YearMonth.parse(parts[3]);
@@ -174,6 +220,7 @@ public class CommandLineUI {
                         System.out.println("Usage: articles <start_date> <end_date>");
                         return;
                     }
+
                     LocalDate start = LocalDate.parse(parts[1]);
                     LocalDate end = LocalDate.parse(parts[2]);
 
@@ -201,6 +248,9 @@ public class CommandLineUI {
         }
     }
 
+    /**
+     * Handles interactive search.
+     */
     private void doInteractiveSearch() {
         System.out.println("Enter search keyword(s):");
         String keyword = scanner.nextLine().trim();
@@ -209,6 +259,9 @@ public class CommandLineUI {
         promptEnterToReturnInteractive();
     }
 
+    /**
+     * Handles interactive autocomplete.
+     */
     private void doInteractiveAutocomplete() {
         System.out.println("Enter prefix for autocomplete:");
         String prefix = scanner.nextLine().trim();
@@ -217,6 +270,9 @@ public class CommandLineUI {
         promptEnterToReturnInteractive();
     }
 
+    /**
+     * Handles interactive top-topic analysis.
+     */
     private void doInteractiveTopics() {
         try {
             System.out.println("Enter period (YYYY-MM):");
@@ -229,6 +285,9 @@ public class CommandLineUI {
         promptEnterToReturnInteractive();
     }
 
+    /**
+     * Handles interactive trend analysis.
+     */
     private void doInteractiveTrends() {
         try {
             System.out.println("Enter topic:");
@@ -252,6 +311,9 @@ public class CommandLineUI {
         promptEnterToReturnInteractive();
     }
 
+    /**
+     * Handles interactive date range search.
+     */
     private void doInteractiveArticles() {
         try {
             System.out.println("Enter start date (YYYY-MM-DD):");
@@ -271,6 +333,9 @@ public class CommandLineUI {
         promptEnterToReturnInteractive();
     }
 
+    /**
+     * Handles interactive single-article lookup.
+     */
     private void doInteractiveArticle() {
         System.out.println("Enter article ID:");
         String id = scanner.nextLine().trim();
@@ -278,36 +343,60 @@ public class CommandLineUI {
         promptEnterToReturnInteractive();
     }
 
+    /**
+     * Handles interactive statistics display.
+     */
     private void doInteractiveStats() {
         System.out.println(processor.getStats());
         promptEnterToReturnInteractive();
     }
 
+    /**
+     * Displays the help menu and waits for user acknowledgement.
+     */
     private void showHelp() {
         MenuPrinter.printHelpMenu();
         scanner.nextLine();
     }
 
+    /**
+     * Prints application exit messages.
+     */
     private void exitProgram() {
         System.out.println("Thank you for using the Tech News Search Engine!");
         System.out.println("Goodbye!");
     }
 
+    /**
+     * Pauses after an interactive operation so the user can read results.
+     */
     private void promptEnterToReturnInteractive() {
         System.out.println("Press ENTER to return to the main Interactive Mode menu");
         scanner.nextLine();
     }
 
+    /**
+     * Prints a list of result lines or a fallback message if empty.
+     *
+     * @param lines output lines to print
+     */
     private void printLines(List<String> lines) {
         if (lines == null || lines.isEmpty()) {
             System.out.println("No articles found.");
             return;
         }
+
         for (String line : lines) {
             System.out.println(line);
         }
     }
 
+    /**
+     * Returns true if the given string contains only digits.
+     *
+     * @param s input string
+     * @return true if numeric
+     */
     private boolean isNumeric(String s) {
         return s.matches("\\d+");
     }

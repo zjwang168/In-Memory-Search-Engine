@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface SearchEngineProcessor {
-    List<String> searchTitlesByKeywords(String query);          // 何成
-    List<String> autocomplete(String prefix);                   // Mango
-    List<String> getTopTopics(YearMonth period);                // 何成
-    Map<YearMonth, Integer> getTopicTrends(String topic, YearMonth start, YearMonth end); // 你
-    List<String> getArticlesByDateRange(LocalDate start, LocalDate end); // Mango
-    String getArticleDetailsById(String id);                    // 何成
-    String getStats();                                          // 何成
+    List<String> searchTitlesByKeywords(String query);          
+    List<String> autocomplete(String prefix);                   
+    List<String> getTopTopics(YearMonth period);                
+    Map<YearMonth, Integer> getTopicTrends(String topic, YearMonth start, YearMonth end); 
+    List<String> getArticlesByDateRange(LocalDate start, LocalDate end); 
+    String getArticleDetailsById(String id);                    
+    String getStats();                                          
 }
