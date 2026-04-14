@@ -2,7 +2,6 @@ package edu.upenn.cit5940.datamanagement;
 
 import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.CSVReaderHeaderAwareBuilder;
-import com.opencsv.exceptions.CsvValidationException;
 import edu.upenn.cit5940.logging.AppLogger;
 import edu.upenn.cit5940.model.Article;
 
@@ -16,17 +15,21 @@ import java.util.List;
 import java.util.Map;
 
 public class CsvArticleDataReader implements ArticleDataReader {
+
     @Override
     public List<Article> read(Path filePath, AppLogger logger) throws IOException {
         List<Article> articles = new ArrayList<>();
 
-        try (CSVReaderHeaderAware reader = new CSVReaderHeaderAwareBuilder(new FileReader(filePath.toFile())).build()) {
+        try (CSVReaderHeaderAware reader =
+                     new CSVReaderHeaderAwareBuilder(new FileReader(filePath.toFile())).build()) {
+
             Map<String, String> row;
             int lineNumber = 1;
+
             while (true) {
                 try {
                     row = reader.readMap();
-                } catch (CsvValidationException e) {
+                } catch (Exception e) { 
                     logger.warn("Skipping CSV row " + lineNumber + ": invalid CSV format");
                     lineNumber++;
                     continue;
@@ -37,9 +40,15 @@ public class CsvArticleDataReader implements ArticleDataReader {
                 }
 
                 lineNumber++;
-                Article article = parseRow(row, lineNumber, logger);
-                if (article != null) {
-                    articles.add(article);
+
+                try {
+                    Article article = parseRow(row, lineNumber, logger);
+                    if (article != null) {
+                        articles.add(article);
+                    }
+                } catch (Exception e) {
+                    
+                    logger.warn("Skipping CSV row " + lineNumber + ": unexpected error");
                 }
             }
         }
@@ -53,6 +62,7 @@ public class CsvArticleDataReader implements ArticleDataReader {
         String dateRaw = safe(row.get("date"));
         String content = safe(row.get("body"));
 
+        
         if (id.isBlank() || title.isBlank() || dateRaw.isBlank()) {
             logger.warn("Skipping CSV row " + lineNumber + ": missing essential field(s)");
             return null;

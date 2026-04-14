@@ -41,10 +41,6 @@ public final class DataBootstrap {
         List<Article> articles = reader.read(dataPath, logger);
         logger.info("Loaded " + articles.size() + " articles");
 
-        if (articles.isEmpty()) {
-            throw new IllegalStateException("No valid articles found in " + dataPath);
-        }
-
         return articles;
     }
 
